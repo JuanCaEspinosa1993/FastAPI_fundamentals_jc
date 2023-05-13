@@ -22,9 +22,24 @@ class HairColor(Enum):
     red = "red"
 
 class Location(BaseModel):
-    city: str
-    state: str
-    country: str
+    city: str =  Field(
+        default=None, 
+        min_length=1,
+        max_length=20,
+        example = "Gudalajara"
+          )
+    state: str =  Field(
+        ..., 
+        min_length=1,
+        max_length=20,
+        example = "Jalisco"
+          )
+    country: str = Field(
+        ...,
+        min_length=1,
+        max_length=50,
+        example = "Mexico"
+    )
 
 class Person(BaseModel):
     first_name: str = Field(
@@ -43,7 +58,7 @@ class Person(BaseModel):
         ...,
         gt=0,
         le=115,
-        example=22
+        example=20
     )
     hair_color: Optional[HairColor] = Field(default=None, example="red")
     is_married: Optional[bool] = Field(default=None, example=False)
@@ -73,16 +88,20 @@ def create_person(person: Person = Body(...)):
 #validaciones: Query Parameters
 
 @app.get("/person/detail")
-def show_person(name: Optional[str] = Query(
-    None, 
-    min_length=1, 
-    max_length=50, 
-    title="Person Name",
-    description="This is the person name. It's between 1 and 50 characters"),
+def show_person(
+    name: Optional[str] = Query(
+        None, 
+        min_length=1, 
+        max_length=50, 
+        title="Person Name",
+        description="This is the person name. It's between 1 and 50 characters",
+        example="Furcio"
+        ),
     age: str = Query(
         ...,
         title="Person Age",
-        description="This is the Person age. It's required"
+        description="This is the Person age. It's required",
+        example="19"
     )
 ):
     return {name: age}
@@ -95,7 +114,9 @@ def show_person(
         ..., 
         gt=0,
         title="Person ID",
-        description="This is the ID Person. It's required")
+        description="This is the ID Person. It's required",
+        example=123
+        )
 ):
     return {person_id: "It exists!"}
 
@@ -107,7 +128,8 @@ def update_person(
         ...,
         title="Person ID",
         description="This is the person ID",
-        gt=0
+        gt=0,
+        example=123
     ),
     person: Person = Body(...),
     #location: Location = Body(...)
